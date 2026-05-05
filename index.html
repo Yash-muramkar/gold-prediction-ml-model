@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gold Price Predictor</title>
+    <style>
+body {
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+    text-align: center;
+}
+
+input, button {
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+button {
+    background: gold;
+    border: none;
+}
+</style>
+</head>
+<body>
+    <h2>Gold Price Prediction</h2>
+
+    <input id="spx" placeholder="SPX"><br><br>
+    <input id="uso" placeholder="USO"><br><br>
+    <input id="slv" placeholder="SLV"><br><br>
+    <input id="eur" placeholder="EUR/USD"><br><br>
+
+    <button onclick="predict()">Predict</button>
+
+    <h3 id="result"></h3>
+
+    <script>
+        async function predict() {
+            const data = {
+                SPX: parseFloat(document.getElementById("spx").value),
+                USO: parseFloat(document.getElementById("uso").value),
+                SLV: parseFloat(document.getElementById("slv").value),
+                EUR_USD: parseFloat(document.getElementById("eur").value)
+            };
+
+            const response = await fetch("http://127.0.0.1:8000/predict", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            document.getElementById("result").innerText =
+                "Predicted Gold Price: " + result.predicted_gold_price;
+        }
+    </script>
+</body>
+</html>
