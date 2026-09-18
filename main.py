@@ -302,7 +302,7 @@ def get_analytics():
         "correlation": model_meta["correlation_matrix"]
     }
 
-@app.get("/download-apk")
+@app.api_route("/download-apk", methods=["GET", "HEAD"])
 def download_apk():
     apk_paths = [
         os.path.join(BASE_DIR, "GoldPredictor.apk"),
