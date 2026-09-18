@@ -58,6 +58,23 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+button, .btn-primary, .btn-secondary, .nav-item, .tf-btn, .chip, .icon-btn {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  cursor: pointer;
+}
+
+.nav-item * {
+  pointer-events: none;
+}
+.btn-primary * {
+  pointer-events: none;
+}
+.btn-secondary * {
+  pointer-events: none;
+}
+
 html {
   background-color: #ffffff;
 }

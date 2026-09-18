@@ -1,5 +1,5 @@
 // Gold Predictor AI - Mobile App Controller v2.0
-document.addEventListener('DOMContentLoaded', () => {
+function initGoldApp() {
 
   // State Management
   const state = {
@@ -88,39 +88,45 @@ document.addEventListener('DOMContentLoaded', () => {
   const tabPanels = document.querySelectorAll('.tab-panel');
 
   navItems.forEach(item => {
-    item.addEventListener('click', () => {
-      const targetTab = item.dataset.tab;
-      if (targetTab === state.currentTab) return;
+    const handleNav = (e) => {
+      e.preventDefault();
+      const targetTab = item.getAttribute('data-tab');
+      if (!targetTab || targetTab === state.currentTab) return;
 
       navItems.forEach(n => n.classList.remove('active'));
       tabPanels.forEach(p => p.classList.remove('active'));
 
       item.classList.add('active');
       const targetPanel = document.getElementById(targetTab);
-      if (targetPanel) targetPanel.classList.add('active');
+      if (targetPanel) {
+        targetPanel.classList.add('active');
+      }
 
       state.currentTab = targetTab;
       playFintechChime('click');
 
-      // Resize chart if switching to markets tab
+      // Re-render chart if switching to markets tab
       if (targetTab === 'tab-markets') {
-        setTimeout(renderChart, 50);
+        setTimeout(renderChart, 60);
       }
-    });
+    };
+
+    item.addEventListener('click', handleNav);
   });
 
   // -------------------------------------------------------------
   // API BASE URL CONFIGURATION (LAN & Cloud Sync)
   // -------------------------------------------------------------
   function getApiBaseUrl() {
-    // If running in regular browser on desktop or phone via IP/domain
+    const saved = localStorage.getItem('api_server_url');
+    if (saved) return saved.replace(/\/+$/, '');
+
+    // If running over HTTP or HTTPS from ANY web server (Render, localhost, LAN IP)
     if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
-      if (window.location.hostname.includes('onrender.com') || (window.location.hostname !== 'localhost' && window.location.port !== '8000')) {
-        return ''; // relative paths work automatically on Render or web host
-      }
+      return ''; // relative paths work automatically on Render or localhost
     }
-    // If running inside Capacitor APK on mobile
-    return localStorage.getItem('api_server_url') || 'https://gold-prediction-ml-model.onrender.com';
+    // If running inside native APK WebView (capacitor://, file://, etc.)
+    return 'https://gold-prediction-ml-model.onrender.com';
   }
 
   // Allow user to tap status badge to customize server URL
@@ -294,31 +300,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const min = Math.min(...points);
     const max = Math.max(...points);
-    document.getElementById('chartLow').textContent = `$${Math.round(min).toLocaleString()}`;
-    document.getElementById('chartHigh').textContent = `$${Math.round(max).toLocaleString()}`;
+    const lowEl = document.getElementById('chartLow');
+    const highEl = document.getElementById('chartHigh');
+    if (lowEl) lowEl.textContent = `$${Math.round(min).toLocaleString()}`;
+    if (highEl) highEl.textContent = `$${Math.round(max).toLocaleString()}`;
   }
 
   function renderChart() {
     if (!chartCanvas) return;
     const ctx = chartCanvas.getContext('2d');
-    const width = chartCanvas.parentElement.clientWidth;
-    const height = chartCanvas.parentElement.clientHeight;
+    if (!ctx) return;
 
-    chartCanvas.width = width * window.devicePixelRatio;
-    chartCanvas.height = height * window.devicePixelRatio;
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-
-    ctx.clearRect(0, 0, width, height);
-
+    // Ensure chart data is always ready
+    if (!state.chartData || state.chartData.length < 2) {
+      generateChartData();
+    }
     const data = state.chartData;
     if (!data || data.length < 2) return;
 
+    // Measure parent container with mobile screen fallbacks
+    const container = chartCanvas.parentElement;
+    let width = container ? container.clientWidth : 0;
+    let height = container ? container.clientHeight : 0;
+
+    if (!width || width < 40) {
+      width = window.innerWidth > 480 ? 440 : Math.max(280, window.innerWidth - 44);
+    }
+    if (!height || height < 40) {
+      height = 220;
+    }
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    chartCanvas.width = Math.round(width * dpr);
+    chartCanvas.height = Math.round(height * dpr);
+    chartCanvas.style.width = width + 'px';
+    chartCanvas.style.height = height + 'px';
+
+    // Reset coordinate system to prevent cumulative scaling bugs
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+
     const min = Math.min(...data) * 0.995;
     const max = Math.max(...data) * 1.005;
-    const range = max - min;
+    const range = (max - min) || 1;
 
-    const getX = (idx) => (idx / (data.length - 1)) * (width - 20) + 10;
-    const getY = (val) => height - 20 - ((val - min) / range) * (height - 40);
+    const padX = 14;
+    const padY = 22;
+    const usableW = width - (padX * 2);
+    const usableH = height - (padY * 2);
+
+    const getX = (idx) => padX + (idx / (data.length - 1)) * usableW;
+    const getY = (val) => height - padY - ((val - min) / range) * usableH;
 
     // Draw Subtle Grid Lines (Optimized for White Theme)
     ctx.strokeStyle = 'rgba(111, 47, 193, 0.08)';
@@ -326,14 +358,14 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = 1; i <= 3; i++) {
       const y = (height / 4) * i;
       ctx.beginPath();
-      ctx.moveTo(10, y);
-      ctx.lineTo(width - 10, y);
+      ctx.moveTo(padX, y);
+      ctx.lineTo(width - padX, y);
       ctx.stroke();
     }
 
     // Gradient Fill Under Line
     const gradient = ctx.createLinearGradient(0, 10, 0, height);
-    gradient.addColorStop(0, 'rgba(169, 93, 254, 0.30)');
+    gradient.addColorStop(0, 'rgba(169, 93, 254, 0.32)');
     gradient.addColorStop(0.7, 'rgba(111, 47, 193, 0.08)');
     gradient.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
 
@@ -345,8 +377,8 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.quadraticCurveTo(getX(i - 1), getY(data[i - 1]), xc, yc);
     }
     ctx.lineTo(getX(data.length - 1), getY(data[data.length - 1]));
-    ctx.lineTo(getX(data.length - 1), height - 10);
-    ctx.lineTo(getX(0), height - 10);
+    ctx.lineTo(getX(data.length - 1), height - padY);
+    ctx.lineTo(getX(0), height - padY);
     ctx.closePath();
     ctx.fillStyle = gradient;
     ctx.fill();
@@ -476,6 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
     predictBtn.disabled = true;
     predictBtn.innerHTML = '<span>⚡ Processing AI Inference...</span>';
 
+    try {
       const base = getApiBaseUrl();
       const url = base ? `${base}/api/predict` : '/api/predict';
       const controller = new AbortController();
@@ -818,7 +851,11 @@ document.addEventListener('DOMContentLoaded', () => {
     syncLiveAppBtn.disabled = true;
     syncLiveAppBtn.textContent = '⏳ Checking Cloud Deployment...';
     try {
-      const res = await fetch(`${url}/api/health`, { signal: AbortSignal.timeout(4000) });
+      const ctrl = new AbortController();
+      const tId = setTimeout(() => ctrl.abort(), 4000);
+      const res = await fetch(`${url}/api/health`, { signal: ctrl.signal });
+      clearTimeout(tId);
+
       if (res.ok) {
         localStorage.setItem('api_server_url', url);
         playFintechChime('success');
@@ -847,8 +884,25 @@ document.addEventListener('DOMContentLoaded', () => {
   // Auto-refresh rates every 15 seconds
   setInterval(fetchRates, 15000);
 
-  // Resize listener for responsive chart rendering
+  // Resize & orientation listeners for responsive chart rendering
+  let resizeTimer = null;
   window.addEventListener('resize', () => {
-    if (state.currentTab === 'tab-markets') renderChart();
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (state.currentTab === 'tab-markets') renderChart();
+    }, 100);
   });
-});
+
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+      if (state.currentTab === 'tab-markets') renderChart();
+    }, 200);
+  });
+}
+
+// Guarantee immediate boot whether DOM is loading or already parsed
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initGoldApp);
+} else {
+  initGoldApp();
+}
