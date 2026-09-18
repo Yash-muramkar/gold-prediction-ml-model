@@ -115,12 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
   function getApiBaseUrl() {
     // If running in regular browser on desktop or phone via IP/domain
     if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
-      if (window.location.hostname !== 'localhost' || window.location.port === '8000') {
-        return ''; // relative paths work automatically in web browsers
+      if (window.location.hostname.includes('onrender.com') || (window.location.hostname !== 'localhost' && window.location.port !== '8000')) {
+        return ''; // relative paths work automatically on Render or web host
       }
     }
-    // If running inside Capacitor APK on mobile (capacitor:// or https://localhost)
-    return localStorage.getItem('api_server_url') || 'http://192.168.0.235:8000';
+    // If running inside Capacitor APK on mobile
+    return localStorage.getItem('api_server_url') || 'https://gold-prediction-ml-model.onrender.com';
   }
 
   // Allow user to tap status badge to customize server URL
@@ -129,8 +129,8 @@ document.addEventListener('DOMContentLoaded', () => {
     statusBadge.style.cursor = 'pointer';
     statusBadge.title = 'Tap to configure or test Server IP';
     statusBadge.addEventListener('click', () => {
-      const current = localStorage.getItem('api_server_url') || 'http://192.168.0.235:8000';
-      const input = prompt('Configure Gold AI Backend Server URL (e.g. your PC IP or Render Cloud URL):', current);
+      const current = localStorage.getItem('api_server_url') || 'https://gold-prediction-ml-model.onrender.com';
+      const input = prompt('Configure Gold AI Backend Server URL (e.g. Render Cloud URL):', current);
       if (input !== null && input.trim() !== '') {
         localStorage.setItem('api_server_url', input.trim());
         fetchRates();

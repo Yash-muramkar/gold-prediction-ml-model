@@ -3,6 +3,7 @@
   "appName": "Gold Predictor",
   "webDir": "www",
   "server": {
+    "url": "https://gold-prediction-ml-model.onrender.com",
     "cleartext": true,
     "androidScheme": "https"
   },
