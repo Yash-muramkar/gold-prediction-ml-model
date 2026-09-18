@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Gold Predictor AI - Real-Time Intelligence & Mobile App</title>
+  <meta name="description" content="AI-powered gold price prediction system with real-time financial market data, scenario crisis simulator, and mobile app.">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  
+  <!-- Google Fonts: Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css?v=white_4">
+</head>
+<body>
+
+<div class="app-container" id="app">
+
+  <!-- TOP APP BAR -->
+  <header class="top-bar">
+    <div class="brand">
+      <img src="icon.png" alt="Gold Predictor Logo" class="brand-icon">
+      <div>
+        <h1 class="brand-title">Gold AI</h1>
+        <p class="brand-subtitle">Intelligence v2.0</p>
+      </div>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <button class="icon-btn" id="audioToggleBtn" title="Sound Effects">🔊</button>
+      <div class="status-pill" id="liveStatusBadge">
+        <span class="pulse-dot"></span>
+        <span id="statusText">LIVE DATA</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== TAB 1: MARKETS ==================== -->
+  <section class="tab-panel active" id="tab-markets">
+    
+    <!-- Hero Spot Price Card -->
+    <div class="hero-gold-card">
+      <div class="hero-label">Spot Gold Price (XAU / GLD)</div>
+      <div class="hero-price">
+        <span id="heroGoldPrice">$4,629.90</span>
+      </div>
+      <div class="hero-subprice" id="heroGoldInr">₹1,32,450 / 10g (24K)</div>
+      <div class="hero-badge-row">
+        <span class="badge-change up" id="heroChangeBadge">▲ +1.42% ($64.80)</span>
+        <span class="badge-vol" id="marketTime">Updated Just Now</span>
+        <button class="btn-secondary" id="refreshBtn" style="padding: 4px 10px; font-size: 0.72rem; margin-left: auto;">
+          🔄 Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Live Macro Indicators -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🌐 Live Macro Drivers</span>
+        <span style="font-size: 0.72rem; color: var(--text-dim);">Real-Time API</span>
+      </div>
+      <div class="ticker-grid">
+        <div class="ticker-item">
+          <div class="ticker-name"><span>S&P 500</span><span>SPX</span></div>
+          <div class="ticker-val" id="tickerSPX">7,637.76</div>
+          <div class="ticker-chg up" id="chgSPX">▲ +0.65%</div>
+        </div>
+        <div class="ticker-item">
+          <div class="ticker-name"><span>Crude Oil</span><span>USO</span></div>
+          <div class="ticker-val" id="tickerUSO">$155.31</div>
+          <div class="ticker-chg down" id="chgUSO">▼ -0.82%</div>
+        </div>
+        <div class="ticker-item">
+          <div class="ticker-name"><span>Silver Trust</span><span>SLV</span></div>
+          <div class="ticker-val" id="tickerSLV">$58.97</div>
+          <div class="ticker-chg up" id="chgSLV">▲ +2.10%</div>
+        </div>
+        <div class="ticker-item">
+          <div class="ticker-name"><span>Euro / USD</span><span>EUR/USD</span></div>
+          <div class="ticker-val" id="tickerEUR">1.1484</div>
+          <div class="ticker-chg up" id="chgEUR">▲ +0.18%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Interactive Price Chart -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📈 Gold Price Trend</span>
+        <div class="timeframe-selector" id="timeframeSelector">
+          <button class="tf-btn" data-tf="1D">1D</button>
+          <button class="tf-btn" data-tf="1W">1W</button>
+          <button class="tf-btn active" data-tf="1M">1M</button>
+          <button class="tf-btn" data-tf="1Y">1Y</button>
+          <button class="tf-btn" data-tf="10Y">10Y</button>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="mainChart"></canvas>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 0.74rem; color: var(--text-dim);">
+        <span>Low: <strong id="chartLow" style="color: var(--text-muted);">$4,520</strong></span>
+        <span>High: <strong id="chartHigh" style="color: var(--text-muted);">$4,710</strong></span>
+        <span>MA-50: <strong style="color: var(--gold-primary);">Bullish Trend</strong></span>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ==================== TAB 2: AI PREDICTOR ==================== -->
+  <section class="tab-panel" id="tab-predictor">
+
+    <!-- Auto Fetch Banner -->
+    <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(245, 158, 11, 0.08); border: 1px dashed var(--border-gold); padding: 12px 16px; border-radius: var(--radius-md);">
+      <div>
+        <div style="font-size: 0.84rem; font-weight: 700; color: var(--gold-light);">⚡ Real-Time Sync</div>
+        <div style="font-size: 0.72rem; color: var(--text-muted);">Fill inputs with live market rates</div>
+      </div>
+      <button class="btn-secondary" id="autoFetchBtn">Auto-Fill Live</button>
+    </div>
+
+    <!-- Crisis Presets -->
+    <div>
+      <div style="font-size: 0.76rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">
+        🎯 Interactive Crisis Simulator
+      </div>
+      <div class="crisis-chips">
+        <button class="chip" data-scenario="oil_shock">🛢️ Oil Shock (+25%)</button>
+        <button class="chip" data-scenario="market_crash">📉 Wall St Crash (-15%)</button>
+        <button class="chip" data-scenario="dollar_plunge">💵 USD Plunge (-5%)</button>
+        <button class="chip" data-scenario="metals_bull">🥈 Metals Bull (+18%)</button>
+      </div>
+    </div>
+
+    <!-- Feature Input Sliders -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">⚙️ Predictive Macro Model</span>
+        <span style="font-size: 0.72rem; color: var(--gold-light);">Accuracy: 99.52%</span>
+      </div>
+
+      <!-- S&P 500 Slider -->
+      <div class="input-slider-group">
+        <div class="input-label-row">
+          <span class="input-name">📈 S&P 500 Index (SPX)</span>
+          <input type="number" class="input-number-box" id="numSPX" value="7230" step="10">
+        </div>
+        <input type="range" class="gold-slider" id="sliderSPX" min="1000" max="10000" value="7230" step="10">
+      </div>
+
+      <!-- Oil Slider -->
+      <div class="input-slider-group">
+        <div class="input-label-row">
+          <span class="input-name">🛢️ Crude Oil Fund (USO)</span>
+          <input type="number" class="input-number-box" id="numUSO" value="102" step="1">
+        </div>
+        <input type="range" class="gold-slider" id="sliderUSO" min="15" max="180" value="102" step="1">
+      </div>
+
+      <!-- Silver Slider -->
+      <div class="input-slider-group">
+        <div class="input-label-row">
+          <span class="input-name">🥈 Silver Price (SLV)</span>
+          <input type="number" class="input-number-box" id="numSLV" value="76" step="0.5">
+        </div>
+        <input type="range" class="gold-slider" id="sliderSLV" min="10" max="120" value="76" step="0.5">
+      </div>
+
+      <!-- EUR/USD Slider -->
+      <div class="input-slider-group">
+        <div class="input-label-row">
+          <span class="input-name">💱 EUR / USD Rate</span>
+          <input type="number" class="input-number-box" id="numEUR" value="1.17" step="0.01">
+        </div>
+        <input type="range" class="gold-slider" id="sliderEUR" min="0.85" max="1.60" value="1.17" step="0.01">
+      </div>
+
+      <button class="btn-primary" id="predictBtn" style="margin-top: 8px;">
+        <span>🔮 Run AI Price Prediction</span>
+      </button>
+    </div>
+
+    <!-- AI PREDICTION RESULT -->
+    <div class="prediction-result-card" id="predictionResultCard">
+      <div class="pred-top">
+        <div>
+          <div style="font-size: 0.76rem; color: var(--gold-light); text-transform: uppercase; font-weight: 700;">
+            AI Forecast Target
+          </div>
+          <div class="pred-val" id="resultPrice">$4,682.40</div>
+        </div>
+        <div class="signal-badge" id="signalBadge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981;">
+          STRONG BUY
+        </div>
+      </div>
+
+      <div style="font-size: 0.84rem; color: var(--text-main); margin-bottom: 8px;" id="recommendationText">
+        Gold is trading 2.1% below intrinsic valuation. High probability of upward momentum.
+      </div>
+
+      <!-- Valuation & Risk Stats -->
+      <div class="pred-stats-grid">
+        <div class="stat-box">
+          <div class="stat-title">7D Target</div>
+          <div class="stat-val" id="statTarget" style="color: #34d399;">$4,745.00</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-title">Stop-Loss</div>
+          <div class="stat-val" id="statStopLoss" style="color: #f87171;">$4,510.00</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-title">Consensus</div>
+          <div class="stat-val" id="statConfidence" style="color: var(--gold-light);">96.4%</div>
+        </div>
+      </div>
+
+      <!-- Multi-Horizon Forecasts -->
+      <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+        <div style="font-size: 0.74rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px;">
+          📅 Multi-Horizon Projection
+        </div>
+        <div style="display: flex; justify-content: space-between; gap: 8px;">
+          <div style="flex: 1; background: rgba(255, 255, 255, 0.03); padding: 8px; border-radius: 6px; text-align: center;">
+            <div style="font-size: 0.68rem; color: var(--text-dim);">Next 24H</div>
+            <div style="font-size: 0.88rem; font-weight: 700; color: var(--text-main);" id="forecast24h">$4,650</div>
+          </div>
+          <div style="flex: 1; background: rgba(255, 255, 255, 0.03); padding: 8px; border-radius: 6px; text-align: center;">
+            <div style="font-size: 0.68rem; color: var(--text-dim);">7 Days</div>
+            <div style="font-size: 0.88rem; font-weight: 700; color: var(--gold-light);" id="forecast7d">$4,745</div>
+          </div>
+          <div style="flex: 1; background: rgba(255, 255, 255, 0.03); padding: 8px; border-radius: 6px; text-align: center;">
+            <div style="font-size: 0.68rem; color: var(--text-dim);">30 Days</div>
+            <div style="font-size: 0.88rem; font-weight: 700; color: #34d399;" id="forecast30d">$4,860</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ==================== TAB 3: SIP & RATES ==================== -->
+  <section class="tab-panel" id="tab-sip">
+
+    <!-- Purity Converter Controls -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">👑 Gold Purity Rates</span>
+        <div style="display: flex; gap: 4px;">
+          <button class="btn-secondary curr-btn active" data-curr="USD" style="padding: 4px 8px; font-size: 0.72rem;">USD $</button>
+          <button class="btn-secondary curr-btn" data-curr="INR" style="padding: 4px 8px; font-size: 0.72rem;">INR ₹</button>
+          <button class="btn-secondary curr-btn" data-curr="EUR" style="padding: 4px 8px; font-size: 0.72rem;">EUR €</button>
+        </div>
+      </div>
+
+      <div class="purity-grid">
+        <div class="purity-card featured">
+          <div class="purity-tag">24K PURE</div>
+          <div class="purity-price" id="rate24K">$148.80</div>
+          <div class="purity-unit">per gram (99.9%)</div>
+        </div>
+        <div class="purity-card">
+          <div class="purity-tag">22K JEWELRY</div>
+          <div class="purity-price" id="rate22K">$136.30</div>
+          <div class="purity-unit">per gram (91.6%)</div>
+        </div>
+        <div class="purity-card">
+          <div class="purity-tag">18K FASHION</div>
+          <div class="purity-price" id="rate18K">$111.60</div>
+          <div class="purity-unit">per gram (75.0%)</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 14px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+        <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+          <div style="font-size: 0.72rem; color: var(--text-dim);">1 Sovereign (8 Grams)</div>
+          <div style="font-size: 1.05rem; font-weight: 700; color: var(--gold-light);" id="rateSovereign">$1,190.40</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.3); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+          <div style="font-size: 0.72rem; color: var(--text-dim);">1 Tola (10 Grams)</div>
+          <div style="font-size: 1.05rem; font-weight: 700; color: var(--gold-light);" id="rateTola">$1,488.00</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gold SIP Wealth Calculator -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">💰 Gold SIP Wealth Simulator</span>
+        <span style="font-size: 0.72rem; color: var(--gold-primary);">Compounding</span>
+      </div>
+
+      <div class="input-slider-group">
+        <div class="input-label-row">
+          <span class="input-name">Monthly Investment Amount</span>
+          <span style="color: var(--gold-light); font-weight: 700;" id="sipAmountLabel">$150 / mo</span>
+        </div>
+        <input type="range" class="gold-slider" id="sipAmountSlider" min="20" max="2000" value="150" step="10">
+      </div>
+
+      <div class="input-slider-group">
+        <div class="input-label-row">
+          <span class="input-name">Investment Horizon</span>
+          <span style="color: var(--gold-light); font-weight: 700;" id="sipYearsLabel">5 Years</span>
+        </div>
+        <input type="range" class="gold-slider" id="sipYearsSlider" min="1" max="15" value="5" step="1">
+      </div>
+
+      <div class="sip-result-box">
+        <div class="sip-row">
+          <span style="color: var(--text-muted);">Total Invested Capital:</span>
+          <strong id="sipTotalInvested">$9,000</strong>
+        </div>
+        <div class="sip-row">
+          <span style="color: var(--text-muted);">Gold Accumulated:</span>
+          <strong id="sipGoldAccumulated" style="color: var(--gold-light);">60.4 grams</strong>
+        </div>
+        <div class="sip-row">
+          <span style="color: var(--text-muted);">Expected AI Return (CAGR 12.8%):</span>
+          <strong style="color: #34d399;" id="sipProfit">+$4,230</strong>
+        </div>
+        <div class="sip-row">
+          <span>Projected Wealth Portfolio:</span>
+          <strong id="sipTotalValue">$13,230</strong>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ==================== TAB 4: COPILOT & ANALYTICS ==================== -->
+  <section class="tab-panel" id="tab-analytics">
+
+    <!-- Smart AI Market Copilot -->
+    <div class="card" style="border-left: 3px solid var(--gold-primary);">
+      <div class="card-header">
+        <span class="card-title">🧠 AI Market Copilot</span>
+        <span style="font-size: 0.7rem; color: #34d399;">Active Analysis</span>
+      </div>
+      <p style="font-size: 0.85rem; line-height: 1.5; color: var(--text-main); margin-bottom: 10px;" id="aiCopilotInsight">
+        Gold exhibits an 85.8% correlation with silver and an 81.8% co-movement with the S&P 500. Current dollar stabilization is providing a supportive floor for bullion, keeping near-term downside tightly restricted.
+      </p>
+      <div style="display: flex; gap: 8px;">
+        <span class="badge-vol" style="color: var(--gold-light); border: 1px solid var(--border-gold);">Hedge Index: Strong</span>
+        <span class="badge-vol">RSI 14: 58.4 (Neutral)</span>
+      </div>
+    </div>
+
+    <!-- Feature Importance Ranking -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📊 ML Feature Weights</span>
+        <span style="font-size: 0.72rem; color: var(--text-dim);">Random Forest 100 Trees</span>
+      </div>
+      <div id="featureImportanceBars" style="display: flex; flex-direction: column; gap: 10px;">
+        <!-- Filled via JS -->
+      </div>
+    </div>
+
+    <!-- 10-Year Dataset Overview -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📚 10-Year Dataset Stats</span>
+        <span style="font-size: 0.72rem; color: var(--text-dim);">2010 – 2026</span>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 0.84rem;">
+        <div style="background: rgba(0,0,0,0.25); padding: 10px; border-radius: 6px;">
+          <span style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase;">Total Trading Days</span>
+          <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">1,620 Records</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.25); padding: 10px; border-radius: 6px;">
+          <span style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase;">Model Accuracy (R²)</span>
+          <div style="font-size: 1.1rem; font-weight: 700; color: #34d399;">99.52%</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.25); padding: 10px; border-radius: 6px;">
+          <span style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase;">Mean Abs Error (MAE)</span>
+          <div style="font-size: 1.1rem; font-weight: 700; color: var(--gold-light);">$21.56</div>
+        </div>
+        <div style="background: rgba(0,0,0,0.25); padding: 10px; border-radius: 6px;">
+          <span style="color: var(--text-dim); font-size: 0.7rem; text-transform: uppercase;">10-Year High (GLD)</span>
+          <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">$5,294.40</div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ==================== TAB 5: MOBILE & APK ==================== -->
+  <section class="tab-panel" id="tab-apk">
+
+    <!-- Standalone APK Download Hero -->
+    <div class="apk-download-hero">
+      <img src="icon.png" alt="Gold AI Icon" class="apk-icon">
+      <div>
+        <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--gold-light);">Gold Predictor Mobile APK</h2>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+          Native Android Application for phones & tablets
+        </p>
+      </div>
+
+      <a href="/download-apk" class="btn-primary" id="downloadApkBtn" download style="text-decoration: none; width: 100%;">
+        <span>📥 Download Android APK</span>
+      </a>
+
+      <div style="font-size: 0.74rem; color: var(--text-dim); display: flex; gap: 12px;">
+        <span>Version: <strong>1.0.0</strong></span>
+        <span>Platform: <strong>Android 8.0+</strong></span>
+        <span>Size: <strong>~5.2 MB</strong></span>
+      </div>
+    </div>
+
+    <!-- QR Code for Judges to Scan with Phone -->
+    <div class="card" style="text-align: center;">
+      <div class="card-header" style="justify-content: center;">
+        <span class="card-title">📱 Scan to Download on Phone</span>
+      </div>
+      <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">
+        Judges can scan this QR code directly with any phone camera to install the APK!
+      </p>
+      <div class="qr-frame">
+        <canvas id="qrCanvas" width="180" height="180"></canvas>
+      </div>
+      <div style="margin-top: 10px; font-size: 0.74rem; color: var(--gold-light); font-weight: 600;" id="qrUrlText">
+        http://localhost:8000/download-apk
+      </div>
+    </div>
+
+    <!-- Over-The-Air (OTA) Live GitHub & Render Sync -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">⚡ Live GitHub & Cloud Sync (OTA)</span>
+        <span class="status-pill" id="otaStatusPill" style="font-size: 0.68rem; padding: 2px 8px;">Auto-Sync</span>
+      </div>
+      <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
+        Whenever code is pushed to GitHub & deployed on Render, this APK can load the latest updates instantly without re-downloading!
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <div style="display: flex; gap: 6px;">
+          <input type="url" id="cloudUrlInput" placeholder="https://gold-prediction-ml-model.onrender.com" 
+                 style="flex: 1; padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); font-size: 0.82rem; background: #ffffff; color: var(--text-main); outline: none;">
+          <button class="btn-secondary" id="saveCloudUrlBtn" style="padding: 8px 14px; font-size: 0.78rem;">
+            Save
+          </button>
+        </div>
+        <button class="btn-primary" id="syncLiveAppBtn" style="padding: 10px; font-size: 0.84rem; margin-top: 4px;">
+          🚀 Load Latest Live App from Cloud
+        </button>
+      </div>
+    </div>
+
+    <!-- Zero Downtime Dual-Engine Status -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">🛡️ Dual Inference Engine</span>
+        <span class="status-pill" style="font-size: 0.68rem; padding: 2px 8px;">Zero-Crash</span>
+      </div>
+      <div style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;">
+        <p style="margin-bottom: 8px;">
+          ✅ <strong>Online Mode:</strong> Calls FastAPI backend for live Yahoo Finance streaming & deep Random Forest ensemble.
+        </p>
+        <p>
+          ✅ <strong>Offline Standalone Mode:</strong> If internet or server drops during hackathon presentations, client-side linear & tree inference continues running seamlessly in &lt;5ms.
+        </p>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- BOTTOM NAVIGATION BAR -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="tab-markets">
+      <span class="nav-icon">📊</span>
+      <span>Markets</span>
+    </button>
+    <button class="nav-item" data-tab="tab-predictor">
+      <span class="nav-icon">🔮</span>
+      <span>AI Predict</span>
+    </button>
+    <button class="nav-item" data-tab="tab-sip">
+      <span class="nav-icon">💰</span>
+      <span>SIP & Rates</span>
+    </button>
+    <button class="nav-item" data-tab="tab-analytics">
+      <span class="nav-icon">🧠</span>
+      <span>Analytics</span>
+    </button>
+    <button class="nav-item" data-tab="tab-apk">
+      <span class="nav-icon">📱</span>
+      <span>APK & App</span>
+    </button>
+  </nav>
+
+</div>
+
+<script src="app.js?v=white_4"></script>
+</body>
+</html>

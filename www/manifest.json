@@ -1,0 +1,18 @@
+{
+  "name": "Gold Predictor AI",
+  "short_name": "GoldAI",
+  "description": "AI-Powered Real-Time Gold Price Intelligence, Forecasting & Investment Suite",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#080c14",
+  "theme_color": "#f59e0b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

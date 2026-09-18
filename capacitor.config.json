@@ -1,0 +1,13 @@
+{
+  "appId": "com.goldpredictor.app",
+  "appName": "Gold Predictor",
+  "webDir": "www",
+  "server": {
+    "cleartext": true,
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#ffffff",
+    "allowMixedContent": true
+  }
+}

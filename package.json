@@ -1,0 +1,17 @@
+{
+  "name": "gold-predictor-mobile",
+  "version": "1.0.0",
+  "description": "AI-Powered Real-Time Gold Price Intelligence, Forecasting & Investment Mobile App",
+  "main": "www/index.html",
+  "scripts": {
+    "cap:sync": "cap sync android",
+    "cap:build": "cap build android"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/android": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0"
+  }
+}

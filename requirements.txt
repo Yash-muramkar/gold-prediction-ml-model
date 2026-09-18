@@ -6,3 +6,7 @@ matplotlib
 seaborn
 joblib
 yfinance
+fastapi
+uvicorn
+requests
+python-multipart

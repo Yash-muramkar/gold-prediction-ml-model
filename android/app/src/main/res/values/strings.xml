@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Gold Predictor</string>
+    <string name="title_activity_main">Gold Predictor</string>
+    <string name="package_name">com.goldpredictor.app</string>
+    <string name="custom_url_scheme">com.goldpredictor.app</string>
+</resources>
