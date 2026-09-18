@@ -19,7 +19,6 @@ android/local.properties
 android/.idea/
 android/captures/
 *.hprof
-*.apk
 
 # IDE & OS files
 .vscode/
